@@ -20,8 +20,6 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     // Backend public signer address
     address private _signerAddress = 0x1068b21eC3ae81b4A78354287DF6F93602Ca8848;
-    // Transfer methods locked
-    bool private locked = true;
     // Mapping signatures hash used
     mapping(uint256 => bool) private _usedNonces;
     // Mapping owner address to global score
@@ -61,6 +59,7 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         uint256 nonce,
         uint256 score
     ) external payable {
+        require(globalScores[msg.sender]== 0, "ONLY 1 SCORE PER ADDRESS");
         require(addresSignerMatch(hash, signature), "FORBIDDEN_EXTERNAL_MINT");
         require(!_usedNonces[nonce], "HASH_ALREADY_USED");
         require(hashTransaction(msg.sender, score, nonce) == hash, "HASH_FAIL");
@@ -93,11 +92,6 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _tokenIdCounter.increment();
     }
 
-    // Owner functions for enabling transfer
-    function unlockTransfer() external onlyOwner {
-        locked = false;
-    }
-
     // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(
@@ -106,7 +100,7 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         uint256 tokenId
     ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
-        require(!locked, "Contract transfer methods are locked");
+        require(from == address(0), "Only able to mint from 0x0...");
     }
 
     function _burn(uint256 tokenId)
