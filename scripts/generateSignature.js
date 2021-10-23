@@ -1,5 +1,5 @@
 require("dotenv").config()
-const API_URL = process.env.ROPSTEN_URL;
+const API_URL = process.env.RINKEBY_URL;
 const PUBLIC_KEY = process.env.PUBLIC_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 

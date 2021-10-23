@@ -8,12 +8,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 // TODO
-// Update score if we do another off chain calculation
 // add more detailed data from scoring (%humanity, badge (OG, FLIPPER)..)
 // Add minting timestamp
 // Add event with scored data if using the graph
-// Transfer not possible
-// update public key verificatioin in case of comprosing server signing key
 
 contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -23,6 +20,8 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     // Backend public signer address
     address private _signerAddress = 0x1068b21eC3ae81b4A78354287DF6F93602Ca8848;
+    // Transfer methods locked
+    bool private locked = true;
     // Mapping signatures hash used
     mapping(uint256 => bool) private _usedNonces;
     // Mapping owner address to global score
@@ -71,13 +70,32 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         globalScores[msg.sender] = score;
     }
 
+    function updateScore(
+        bytes32 hash,
+        bytes memory signature,
+        uint256 nonce,
+        uint256 score
+    ) external payable {
+        require(addresSignerMatch(hash, signature), "FORBIDDEN_EXTERNAL_MINT");
+        require(!_usedNonces[nonce], "HASH_ALREADY_USED");
+        require(hashTransaction(msg.sender, score, nonce) == hash, "HASH_FAIL");
+
+        _usedNonces[nonce] = true;
+        globalScores[msg.sender] = score;
+    }
+
     function setSignerAddress(address addr) external onlyOwner {
         _signerAddress = addr;
     }
 
-    function safeMint(address to) private onlyOwner {
+    function safeMint(address to) private {
         _safeMint(to, _tokenIdCounter.current());
         _tokenIdCounter.increment();
+    }
+
+    // Owner functions for enabling transfer
+    function unlockTransfer() external onlyOwner {
+        locked = false;
     }
 
     // The following functions are overrides required by Solidity.
@@ -88,6 +106,7 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         uint256 tokenId
     ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
+        require(!locked, "Contract transfer methods are locked");
     }
 
     function _burn(uint256 tokenId)
