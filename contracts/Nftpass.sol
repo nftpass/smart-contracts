@@ -7,12 +7,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
 // TODO
 // Update score if we do another off chain calculation
-// TODO: add more detailed data from scoring (%humanity, badge (OG, FLIPPER)..)
-// Enrich score fields
+// add more detailed data from scoring (%humanity, badge (OG, FLIPPER)..)
 // Add minting timestamp
+// Add event with scored data if using the graph
+// Transfer not possible
+// update public key verificatioin in case of comprosing server signing key
 
 contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -20,13 +21,10 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    // review this
-    uint256 public constant LIMIT_NFT_AMOUNT = 1;
-
-    // TODO change signer address with the api backend public key
-    address private _signerAddress = 0x7e3999B106E4Ef472E569b772bF7F7647D8F26Ba;
+    // Backend public signer address
+    address private _signerAddress = 0x1068b21eC3ae81b4A78354287DF6F93602Ca8848;
     // Mapping signatures hash used
-    mapping(string => bool) private _usedNonces;
+    mapping(uint256 => bool) private _usedNonces;
     // Mapping owner address to global score
     mapping(address => uint256) public globalScores;
 
@@ -38,16 +36,15 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     function hashTransaction(
         address sender,
-        uint256 qty,
-        string memory nonce
+        uint256 score,
+        uint256 nonce
     ) private pure returns (bytes32) {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encodePacked(sender, qty, nonce))
+                keccak256(abi.encodePacked(sender, score, nonce))
             )
         );
-
         return hash;
     }
 
@@ -62,16 +59,20 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function mint(
         bytes32 hash,
         bytes memory signature,
-        string memory nonce,
+        uint256 nonce,
         uint256 score
     ) external payable {
         require(addresSignerMatch(hash, signature), "FORBIDDEN_EXTERNAL_MINT");
         require(!_usedNonces[nonce], "HASH_ALREADY_USED");
         require(hashTransaction(msg.sender, score, nonce) == hash, "HASH_FAIL");
 
-        _safeMint(msg.sender, totalSupply() + 1);
+        safeMint(msg.sender);
         _usedNonces[nonce] = true;
         globalScores[msg.sender] = score;
+    }
+
+    function setSignerAddress(address addr) external onlyOwner {
+        _signerAddress = addr;
     }
 
     function safeMint(address to) private onlyOwner {
