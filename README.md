@@ -1,3 +1,50 @@
+## NFT Smart Contracts
+
+NFT Pass smart contract with the following features:
+TODO
+
+### Requirements
+
+The following programs have to be installed:
+
+- npm
+- hardhat 
+
+### Getting Started
+
+The following commands will install dependencies and run the tests.
+
+1.) Install Dependencies:
+
+```
+npm install 
+```
+
+2.) Compile smart contracts
+
+```
+npx hardhat compile
+```
+
+### Deploy testnet (ropsten available)
+
+#### Requirements
+
+In order to deploy to a testnet the following API keys are required
+
+- Alchemy api key (get it one from alchemyapi.io)
+- Etherscan api key (if you want to verify the contract code)
+- Private and public key for the ethereum account that is used
+
+Create a file ".env" in the root directory with those keys
+
+#### Deploy commands (only testnet for instance)
+
+For deploying Nftpass:
+
+```
+npx hardhat run scripts/deploy.js --network ropsten
+```
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
@@ -39,59 +86,4 @@ Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_
 
 ```shell
 npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
-
-## NFT Smart Contracts
-
-NFT Pass smart contract with the following features:
-TODO
-
-### Requirements
-
-The following programs have to be installed:
-
-- npm
-- hardhat 
-
-### Getting Started
-
-The following commands will install dependencies and run the tests.
-
-1.) Install Dependencies:
-
-```
-npm install 
-```
-
-2.) Compile smart contracts
-
-```
-npx hardhat compile
-```
-
-### Deploy testnet (ropsten available)
-
-#### Requirements
-
-In order to deploy to a testnet the following API keys are required
-
-- Alchemy api key (get it one from alchemyapi.io)
-- Etherscan api key (if you want to verify the contract code)
-- Private and public key for the ethereum account that is used
-
-Create a file ".env" in the root directory with the following structure
-
-// TODO add .env example
-#### Deploy commands (only testnet for instance)
-
-For deploying Nftpass:
-
-```
-npx hardhat run scripts/deploy.js --network ropsten
-```
-
-For deploying CryptoPunks:
-
-```
-npx hardhat run scripts/deployPunks.js --network ropsten
 ```

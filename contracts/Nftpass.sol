@@ -7,10 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-// TODO
-// add more detailed data from scoring (%humanity, badge (OG, FLIPPER)..)
-// Add minting timestamp
-// Add event with scored data if using the graph
 
 contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -24,11 +20,16 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     mapping(uint256 => bool) private _usedNonces;
     // Mapping owner address to global score
     mapping(address => uint256) public globalScores;
+    // Mapping owner address and blocked minted
+    mapping(address => uint256) public timestamps;
+
+    // Score event
+    event ScoreFetched(address _owner, uint _score);
 
     constructor() ERC721("NFTPASS", "NFTPASS") {}
 
     function _baseURI() internal pure override returns (string memory) {
-        return "TODO";
+        return "https://nftpass.herokuapp.com/nftpass/";
     }
 
     function hashTransaction(
@@ -67,6 +68,9 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         safeMint(msg.sender);
         _usedNonces[nonce] = true;
         globalScores[msg.sender] = score;
+        timestamps[msg.sender] = block.number;
+
+        emit ScoreFetched(msg.sender, score);
     }
 
     function updateScore(
@@ -81,6 +85,8 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
         _usedNonces[nonce] = true;
         globalScores[msg.sender] = score;
+        timestamps[msg.sender] = block.number;
+        emit ScoreFetched(msg.sender, score);
     }
 
     function setSignerAddress(address addr) external onlyOwner {
