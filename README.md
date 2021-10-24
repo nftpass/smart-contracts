@@ -8,7 +8,7 @@ TODO
 The following programs have to be installed:
 
 - npm
-- hardhat 
+- hardhat
 
 ### Getting Started
 
@@ -17,7 +17,7 @@ The following commands will install dependencies and run the tests.
 1.) Install Dependencies:
 
 ```
-npm install 
+npm install
 ```
 
 2.) Compile smart contracts
@@ -45,6 +45,7 @@ For deploying Nftpass:
 ```
 npx hardhat run scripts/deploy.js --network ropsten
 ```
+
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.

@@ -24,7 +24,7 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     mapping(address => uint256) public timestamps;
 
     // Score event
-    event ScoreFetched(address _owner, uint _score);
+    event ScoreFetched(address _owner, uint256 _score);
 
     constructor() ERC721("NFTPASS", "NFTPASS") {}
 
@@ -60,7 +60,7 @@ contract NFTPASS is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         uint256 nonce,
         uint256 score
     ) external payable {
-        require(globalScores[msg.sender]== 0, "ONLY 1 SCORE PER ADDRESS");
+        require(globalScores[msg.sender] == 0, "ONLY 1 SCORE PER ADDRESS");
         require(addresSignerMatch(hash, signature), "FORBIDDEN_EXTERNAL_MINT");
         require(!_usedNonces[nonce], "HASH_ALREADY_USED");
         require(hashTransaction(msg.sender, score, nonce) == hash, "HASH_FAIL");
